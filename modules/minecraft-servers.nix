@@ -344,6 +344,7 @@ in
                               echo "${n} already exists, moving"
                               mv "${n}" "${n}.bak"
                             fi
+                            mkdir -p $(dirname ${n})
                             ln -sf ${v} ${n}
                           '')
                           symlinks));
@@ -360,6 +361,7 @@ in
                               echo "${n} already exists, moving"
                               mv "${n}" "${n}.bak"
                             fi
+                            mkdir -p $(dirname ${n})
                             cp -L --no-preserve all ${v} ${n}
                           '')
                           files));
