@@ -265,6 +265,23 @@ in
               tmux = "${getBin pkgs.tmux}/bin/tmux";
               tmuxSock = "${cfg.runDir}/${name}.sock";
 
+              symlinks = {
+                "eula.txt" = builtins.toFile "eula.txt" ''
+                  # eula.txt managed by NixOS Configuration
+                  eula=true
+                '';
+              } // conf.symlinks;
+              files = {
+                "whitelist.json" = pkgs.writeText "whitelist.json"
+                  (builtins.toJSON
+                    (mapAttrsToList (n: v: { name = n; uuid = v; }) conf.whitelist));
+                "server.properties" = pkgs.writeText "server.properties" (''
+                  # server.properties managed by NixOS configuration
+                '' + concatStringsSep "\n" (mapAttrsToList
+                  (n: v: "${n}=${if builtins.isBool v then boolToString v else toString v}")
+                  conf.serverProperties));
+              } // conf.files;
+
               startScript = pkgs.writeScript "minecraft-start-${name}" ''
                 #!${pkgs.runtimeShell}
 
@@ -304,64 +321,36 @@ in
 
                 preStart =
                   let
-                    eula = builtins.toFile "eula.txt" ''
-                      # eula.txt managed by NixOS Configuration
-                      eula=true
-                    '';
-
-                    whitelist = pkgs.writeText "whitelist.json"
-                      (builtins.toJSON
-                        (mapAttrsToList (n: v: { name = n; uuid = v; }) conf.whitelist));
-
-                    serverProperties =
-                      let
-                        cfgToString = v: if builtins.isBool v then boolToString v else toString v;
-                      in
-                      pkgs.writeText "server.properties" (''
-                        # server.properties managed by NixOS configuration
-                      '' + concatStringsSep "\n" (mapAttrsToList
-                        (n: v: "${n}=${cfgToString v}")
-                        conf.serverProperties));
-
                     mkSymlinks = pkgs.writeShellScript "minecraft-server-${name}-symlinks"
                       (concatStringsSep "\n"
                         (mapAttrsToList
                           (n: v: ''
-                            if [[ -L "${n}" ]]; then
-                              unlink ${n}
-                            elif [[ -e "${n}" ]]; then
+                            if [[ -e "${n}" ]]; then
                               echo "${n} already exists, moving"
                               mv "${n}" "${n}.bak"
                             fi
                             mkdir -p $(dirname ${n})
                             ln -sf ${v} ${n}
                           '')
-                          conf.symlinks));
+                          symlinks));
 
                     mkFiles = pkgs.writeShellScript "minecraft-server-${name}-files"
                       (concatStringsSep "\n"
                         (mapAttrsToList
                           (n: v: ''
-                            if [[ -L "${n}" ]]; then
-                              unlink ${n}
-                            elif ${pkgs.diffutils}/bin/cmp -s ${n} ${v}; then
-                              rm ${n}
-                            elif [[ -e "${n}" ]]; then
+                            if [[ -e "${n}" ]]; then
                               echo "${n} already exists, moving"
                               mv "${n}" "${n}.bak"
                             fi
                             mkdir -p $(dirname ${n})
                             cp -L --no-preserve all ${v} ${n}
                           '')
-                          conf.files));
+                          files));
                   in
                   ''
                     umask u=rwx,g=rwx,o=rx
                     mkdir -p ${serverDir}
                     cd ${serverDir}
-                    ln -sf ${eula} eula.txt
-                    ${if conf.whitelist != {} then "ln -sf ${whitelist} whitelist.json" else ""}
-                    ${if conf.serverProperties != {} then "cp -f ${serverProperties} server.properties" else ""}
                     ${mkSymlinks}
                     ${mkFiles}
                   '';
@@ -369,6 +358,23 @@ in
                 postStart = ''
                   ${pkgs.coreutils}/bin/chmod 660 ${tmuxSock}
                 '';
+
+                postStop =
+                  let
+                    rmSymlinks = pkgs.writeShellScript "minecraft-server-${name}-rm-symlinks"
+                      (concatStringsSep "\n"
+                        (mapAttrsToList (n: v: "unlink ${n}") symlinks)
+                      );
+                    rmFiles = pkgs.writeShellScript "minecraft-server-${name}-rm-files"
+                      (concatStringsSep "\n"
+                        (mapAttrsToList (n: v: "rm -f ${n}") files)
+                      );
+                  in
+                  ''
+                    cd ${serverDir}
+                    ${rmSymlinks}
+                    ${rmFiles}
+                  '';
               };
             })
           servers;
