@@ -272,14 +272,14 @@ in
                 '';
               } // conf.symlinks;
               files = {
-                "whitelist.json" = pkgs.writeText "whitelist.json"
+                "whitelist.json" = mkIf (conf.whitelist != { }) (pkgs.writeText "whitelist.json"
                   (builtins.toJSON
-                    (mapAttrsToList (n: v: { name = n; uuid = v; }) conf.whitelist));
-                "server.properties" = pkgs.writeText "server.properties" (''
+                    (mapAttrsToList (n: v: { name = n; uuid = v; }) conf.whitelist)));
+                "server.properties" = mkIf (conf.serverProperties != { }) (pkgs.writeText "server.properties" (''
                   # server.properties managed by NixOS configuration
                 '' + concatStringsSep "\n" (mapAttrsToList
                   (n: v: "${n}=${if builtins.isBool v then boolToString v else toString v}")
-                  conf.serverProperties));
+                  conf.serverProperties)));
               } // conf.files;
 
               startScript = pkgs.writeScript "minecraft-start-${name}" ''
