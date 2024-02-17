@@ -4408,5 +4408,10 @@
     "name": "hashed-24w07a.zip",
     "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/hashed/24w07a/hashed-24w07a.jar",
     "sha256": "0j73csp8z2kf05ij2krswk99n2zqdhvbn7cr0vjslnq7ymkvngb1"
+  },
+  "org.quiltmc:quilt-loader:0.24.0-beta.5": {
+    "name": "quilt-loader-0.24.0-beta.5.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/0.24.0-beta.5/quilt-loader-0.24.0-beta.5.jar",
+    "sha256": "0h9r06c0j5g5ja6ah4kgpnc5ga9w1pj6wj07jkqsssagl1zwfsr5"
   }
 }
