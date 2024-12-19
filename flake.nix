@@ -25,7 +25,7 @@
         in
         rec {
           inherit buildSupport;
-
+          forgeServers = (pkgs.callPackage ./pkgs/forge-servers/default.nix { });
           vanillaServers = callPackage ./pkgs/vanilla-servers { };
           fabricServers = callPackage ./pkgs/fabric-servers { inherit vanillaServers; };
           quiltServers = callPackage ./pkgs/quilt-servers { inherit vanillaServers; };

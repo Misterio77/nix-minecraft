@@ -1,0 +1,9 @@
+{
+  "1.20.1": {
+      "47.3.1": {
+          "type": "installer",
+          "url": "https://maven.minecraftforge.net/net/minecraftforge/forge//1.20.1-47.3.1/forge-1.20.1-47.3.1-installer.jar",
+          "md5": "md5-ZxKgnSmGRAoMo3FXloY7eg=="
+      }
+  }
+}
