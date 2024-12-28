@@ -42,6 +42,13 @@ let
     then formatExtensions.${head extension} or error
     else error;
 
+  txtList =
+    { }:
+    {
+      type = with lib.types; listOf str;
+      generate = name: value: pkgs.writeText name (lib.concatStringsSep "\n" value);
+    };
+
   formatExtensions = with pkgs.formats; {
     "yml" = yaml { };
     "yaml" = yaml { };
@@ -50,6 +57,7 @@ let
     "properties" = keyValue { };
     "toml" = toml { };
     "ini" = ini { };
+    "txt" = txtList { };
   };
 
   configType = types.submodule {
@@ -449,6 +457,24 @@ in
             '';
           };
 
+          allowedSymlinks = mkOption {
+            default = ["/nix/store"];
+            type = with types; listOf str;
+            example = literalExpression ''
+              [
+                "/mnt/worlds"
+              ]
+            '';
+            description = ''
+              Minecraft 1.20+ disallows symlinks inside world directories, unless
+              its destinations are allow-listed. /nix/store is allowed by default,
+              but you may add more destinations through this option. See
+              <link xlink:href="https://help.minecraft.net/hc/en-us/articles/16165590199181"/>
+              for more information.
+            '';
+            
+          };
+
           package = mkOption {
             description = "The Minecraft server package to use.";
             type = types.package;
@@ -475,9 +501,15 @@ in
             arbitrary files in the server's data directory.
           '';
           files = with types; mkOpt' (attrsOf (either path configType)) { } ''
-            Things to copy into this server's data directory. Similar to
-            symlinks, but these are actual files. Useful for configuration
-            files that don't behave well when read-only.
+            Things to copy into this server's data directory. Similar to symlinks,
+            but these are actual, writable, files. Useful for configuration files
+            that don't behave well when read-only. Directories are copied recursively and
+            dereferenced. They will be deleted after the server stops, so any modification
+            is discarded.
+
+            These files may include placeholders to substitute with values from
+            <option>services.minecraft-servers.environmentFile</option>
+            (i.e. @variable_name@).
           '';
 
           managementSystem = mkOption {
@@ -598,49 +630,67 @@ in
               "whitelist.json".value = mapAttrsToList (n: v: { name = n; uuid = v; }) conf.whitelist;
               "ops.json".value = mapAttrsToList (n: v: { name = n; uuid = v.uuid; level = v.level; bypassesPlayerLimit = v.bypassesPlayerLimit; }) conf.operators;
               "server.properties".value = conf.serverProperties;
+              "allowed_symlinks.txt".value = conf.allowedSymlinks;
             } // conf.files);
 
             msConfig = managementSystemConfig name conf;
 
+            markManaged = file: ''echo "${file}" >> .nix-minecraft-managed'';
+            cleanAllManaged = ''
+              if [ -e .nix-minecraft-managed ]; then
+                readarray -t to_delete < .nix-minecraft-managed
+                rm -rf "''${to_delete[@]}"
+                rm .nix-minecraft-managed
+              fi
+            '';
+
+
             ExecStartPre =
               let
+                backup = file: ''
+                  if [[ -e "${file}" ]]; then
+                    echo "${file} already exists, moving"
+                    mv "${file}" "${file}.bak"
+                  fi
+                '';
                 mkSymlinks = concatStringsSep "\n"
                   (mapAttrsToList
                     (n: v: ''
-                      if [[ -L "${n}" ]]; then
-                        unlink "${n}"
-                      elif [[ -e "${n}" ]]; then
-                        echo "${n} already exists, moving"
-                        mv "${n}" "${n}.bak"
-                      fi
+                      ${backup n}
                       mkdir -p "$(dirname "${n}")"
+
                       ln -sf "${v}" "${n}"
+
+                      ${markManaged n}
                     '')
                     symlinks);
 
                 mkFiles = concatStringsSep "\n"
                   (mapAttrsToList
                     (n: v: ''
-                      if [[ -L "${n}" ]]; then
-                        unlink "${n}"
-                      elif ${pkgs.diffutils}/bin/cmp -s "${n}" "${v}"; then
-                        rm "${n}"
-                      elif [[ -e "${n}" ]]; then
-                        echo "${n} already exists, moving"
-                        mv "${n}" "${n}.bak"
-                      fi
+                      ${backup n}
                       mkdir -p "$(dirname "${n}")"
-                      ${pkgs.gawk}/bin/awk '{
-                        for(varname in ENVIRON)
-                          gsub("@"varname"@", ENVIRON[varname])
-                        print
-                      }' "${v}" > "${n}"
+
+                      # If it's not a binary, substitute env vars. Else, copy it normally
+                      if ${pkgs.file}/bin/file --mime-encoding "${v}" | grep -v '\bbinary$' -q; then
+                        ${pkgs.gawk}/bin/awk '{
+                          for(varname in ENVIRON)
+                            gsub("@"varname"@", ENVIRON[varname])
+                          print
+                        }' "${v}" > "${n}"
+                      else
+                        cp -r --dereference "${v}" -T "${n}"
+                        chmod +w -R "${n}"
+                      fi
+
+                      ${markManaged n}
                     '')
                     files);
               in
               getExe (pkgs.writeShellApplication {
                 name = "minecraft-server-${name}-start-pre";
                 text = ''
+                  ${cleanAllManaged}
                   ${mkSymlinks}
                   ${mkFiles}
                   ${conf.extraStartPre}
@@ -672,21 +722,13 @@ in
               '';
             });
 
-            ExecStopPost =
-              let
-                rmSymlinks = concatStringsSep "\n"
-                  (mapAttrsToList (n: v: "unlink \"${n}\"") symlinks);
-                rmFiles = concatStringsSep "\n"
-                  (mapAttrsToList (n: v: "rm -f \"${n}\"") files);
-              in
-              getExe (pkgs.writeShellApplication {
-                name = "minecraft-server-${name}-stop-post";
-                text = ''
-                  ${rmSymlinks}
-                  ${rmFiles}
-                  ${conf.extraStopPost}
-                '';
-              });
+            ExecStopPost = getExe (pkgs.writeShellApplication {
+              name = "minecraft-server-${name}-stop-post";
+              text = ''
+                ${cleanAllManaged}
+                ${conf.extraStopPost}
+              '';
+            });
 
             ExecReload = getExe (pkgs.writeShellApplication {
               name = "minecraft-server-${name}-reload";
