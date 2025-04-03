@@ -5503,5 +5503,70 @@
     "name": "hashed-1.21.5-rc1.zip",
     "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/hashed/1.21.5-rc1/hashed-1.21.5-rc1.jar",
     "sha256": "0l3cdk9ljffvym9rbg68f7pr73vsyjcgvkwfjw78ai8d0q39bv16"
+  },
+  "net.fabricmc:fabric-loader:0.16.12": {
+    "name": "fabric-loader-0.16.12.zip",
+    "url": "https://maven.fabricmc.net/net/fabricmc/fabric-loader/0.16.12/fabric-loader-0.16.12.jar",
+    "sha256": "0rdqml2ldr3xdxw37pz5zjb5vwrfgh149vy2nq5lzvg7qkrhmzlh"
+  },
+  "net.fabricmc:fabric-loader:0.16.11": {
+    "name": "fabric-loader-0.16.11.zip",
+    "url": "https://maven.fabricmc.net/net/fabricmc/fabric-loader/0.16.11/fabric-loader-0.16.11.jar",
+    "sha256": "1xgwhwyrr06r8ylxk0mhgjk5sajk036bwrskf7q582qr8z8ck32m"
+  },
+  "net.fabricmc:intermediary:25w14craftmine": {
+    "name": "intermediary-25w14craftmine.zip",
+    "url": "https://maven.fabricmc.net/net/fabricmc/intermediary/25w14craftmine/intermediary-25w14craftmine.jar",
+    "sha256": "19s252syy7r8bl29prm64jcfr8jfjqsvqbzla6a4dzvn62qyhmza"
+  },
+  "net.fabricmc:intermediary:1.21.5": {
+    "name": "intermediary-1.21.5.zip",
+    "url": "https://maven.fabricmc.net/net/fabricmc/intermediary/1.21.5/intermediary-1.21.5.jar",
+    "sha256": "117c28c6jfari1q868l964jyax63rqhp3ip8ssxqlgradwwr46ir"
+  },
+  "net.fabricmc:intermediary:1.21.5-rc2": {
+    "name": "intermediary-1.21.5-rc2.zip",
+    "url": "https://maven.fabricmc.net/net/fabricmc/intermediary/1.21.5-rc2/intermediary-1.21.5-rc2.jar",
+    "sha256": "0vy4xji7ajvh3mscfky77064h76jqp06gk59996a8yi7hy5rn56r"
+  },
+  "org.quiltmc:quilt-loader:0.29.0-beta.3": {
+    "name": "quilt-loader-0.29.0-beta.3.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/0.29.0-beta.3/quilt-loader-0.29.0-beta.3.jar",
+    "sha256": "0jri06ym98rxillnx91b7q2fj9fjrfxkdvqg9n65l83l2hvl37rc"
+  },
+  "org.quiltmc:quilt-loader:0.29.0-beta.2": {
+    "name": "quilt-loader-0.29.0-beta.2.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/0.29.0-beta.2/quilt-loader-0.29.0-beta.2.jar",
+    "sha256": "1l4n4y26gg0xf0nhhx8zawkv0blyvn4yy26jlw9bm5bv5mr760il"
+  },
+  "org.quiltmc:quilt-loader:0.29.0-beta.1": {
+    "name": "quilt-loader-0.29.0-beta.1.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/0.29.0-beta.1/quilt-loader-0.29.0-beta.1.jar",
+    "sha256": "13r2m9rmpwfm5y1syxjrb3j2gqpxy8h4ldp4s20xilv20hhiy27g"
+  },
+  "org.quiltmc:quilt-loader:0.28.1": {
+    "name": "quilt-loader-0.28.1.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/0.28.1/quilt-loader-0.28.1.jar",
+    "sha256": "0c4shcf0awb9x4l6rg8i4hlsnag3wfd7mx9g0ms9x4z9mqdz21yb"
+  },
+  "org.quiltmc:quilt-loader:0.28.1-beta.2": {
+    "name": "quilt-loader-0.28.1-beta.2.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/0.28.1-beta.2/quilt-loader-0.28.1-beta.2.jar",
+    "sha256": "0zc9x7q55q6g1mdl9ws42dlzcksi45a821z6pg2p4sb2fl1fnl2p"
+  },
+  "org.quiltmc:hashed:25w14craftmine": {
+    "name": "hashed-25w14craftmine.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/hashed/25w14craftmine/hashed-25w14craftmine.jar",
+    "sha256": "0gsrclfr197prg6kd9zrpljnp109b8c45kb6q3kslpwzmkl0z87z"
+  },
+  "org.quiltmc:hashed:1.21.5": {
+    "name": "hashed-1.21.5.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/hashed/1.21.5/hashed-1.21.5.jar",
+    "sha256": "1gsi6jawh332ivirfxb0xhkrrzbx2fqslc8s260j5mp6a426nigf"
+  },
+  "org.quiltmc:hashed:1.21.5-rc2": {
+    "name": "hashed-1.21.5-rc2.zip",
+    "url": "https://maven.quiltmc.org/repository/release/org/quiltmc/hashed/1.21.5-rc2/hashed-1.21.5-rc2.jar",
+    "sha256": "1mdix4hpb69qj9saazaiqiky5jylbrzghpb423mp779qjgpqch88"
   }
 }
