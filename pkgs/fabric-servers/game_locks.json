@@ -2043,5 +2043,10 @@
     "libraries": [
       "net.fabricmc:intermediary:1.21.5-rc2"
     ]
+  },
+  "25w15a": {
+    "libraries": [
+      "net.fabricmc:intermediary:25w15a"
+    ]
   }
 }
